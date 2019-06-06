@@ -28,7 +28,8 @@ class MustBeCoincidentWithPointRuleFactory(AbstractTopologyRuleFactory):
       "MustBeCoincidentWithPoint",
       "Must Be Coincident With", 
       "This rule requires that the points in both datasets must be coincident, if not, a points errors layer is created. This rule is used when points must coincide. It is useful for modelling networks like electricity. For example in an electricity or water supply network, the water and light meters must match with the service points.", 
-      ListBuilder().add(Geometry.TYPES.SURFACE).add(Geometry.TYPES.MULTISURFACE).asList()
+      ListBuilder().add(Geometry.TYPES.POINT).add(Geometry.TYPES.MULTIPOINT).asList(),
+	  ListBuilder().add(Geometry.TYPES.POINT).add(Geometry.TYPES.MULTIPOINT).asList()
       )
   def createRule(self, plan, dataSet1, dataSet2, tolerance):
     #TopologyPlan plan, String dataSet1, String dataSet2, double tolerance
