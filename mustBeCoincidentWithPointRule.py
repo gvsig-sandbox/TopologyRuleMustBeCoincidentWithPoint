@@ -36,7 +36,7 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
             theDataSet2 = self.getDataSet2()
             if theDataSet2.getSpatialIndex() != None:
                 contains = False
-                for featureReference in theDataSet2.query(point1):
+                for featureReference in theDataSet2.query(buffer1):
                     feature2 = featureReference.getFeature()
                     point2 = feature2.getDefaultGeometry()
                     if buffer1.contains(point2):
@@ -64,7 +64,7 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
                         )
                     ).toString()
                 )
-                if theDataSet.findFirst(self.expression) == None:
+                if theDataSet2.findFirst(self.expression) == None:
                     report.addLine(self,
                         self.getDataSet1(),
                         self.getDataSet2(),
