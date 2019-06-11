@@ -4,28 +4,14 @@
     "description": [ 
         "<img src=\"@@@_d/must_be_coincident_with.png\">\n",     
         "Requires that the points in both datasets must be coincident",
-		"The points in one feature class or subtype must be coincident",
-		"with points in another feature class or subtype",
+	"The points in one feature class or subtype must be coincident with points in another feature class or subtype",
         "Any points that not be coincident are errors",
         "This is useful for ensuring that points are coincident",
         "It is useful for modelling networks like electricity"
     ],
     "actions" : {
-        "": {
-            "name" : "",
-            "description": [ 
-                "",
-                ""
-            ]
-        },
-        "": {
-            "name" : "",
-            "description": [ 
-                ""
-            ]
-        },
-        "": {
-            "name" : "",
+        "DeletePoint": {
+            "name" : "Delete Point",
             "description": [ 
                 ""
             ]
