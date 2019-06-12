@@ -20,7 +20,7 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
     
     def __init__(self, plan, factory, tolerance, dataSet1, dataSet2):
         AbstractTopologyRule.__init__(self, plan, factory, tolerance, dataSet1, dataSet2)
-        #self.addAction(DeletePointAction())
+        self.addAction(DeletePointAction())
     
     def check(self, taskStatus, report, feature1):
         try:
