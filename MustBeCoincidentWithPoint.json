@@ -1,0 +1,24 @@
+{
+    "id": "MustBeCoincidentWithPoint",
+    "name": "Must Be Coincident With",
+    "description": [ 
+        "<img src=\"@@@_d/must_be_coincident_with.png\">\n",     
+        "Requires that the points in both datasets must be coincident",
+	"This rule is useful when the points must be aligned. Points in one layer must be",
+	"coincident with points in another layer, so a report of point errors are created",
+	"where points from the first layer are not covered by points from the second layer.",
+        "Any points that not be coincident are errors",
+        "This is useful for ensuring that points are coincident",
+        "It is useful for modelling networks like electricity"
+    ],
+    "actions" : {
+        "DeletePoint": {
+            "name" : "Delete Point",
+            "description": [ 
+            "This action delete the point errors, the no coincidents points",
+	    "Delete Point action, delete the entities that do not comply the rule"
+            ]
+        }
+    }
+}
+
