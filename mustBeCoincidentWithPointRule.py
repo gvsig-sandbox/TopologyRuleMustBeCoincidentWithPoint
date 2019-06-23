@@ -32,27 +32,51 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
                 self.geomName = store2.getDefaultFeatureType().getDefaultGeometryAttributeName()
             point1 = feature1.getDefaultGeometry()
             tolerance1 = self.getTolerance()
-            buffer1 = point1.buffer(tolerance1)
             theDataSet2 = self.getDataSet2()
             if theDataSet2.getSpatialIndex() != None:
-                contains = False
-                for featureReference in theDataSet2.query(buffer1):
-                    feature2 = featureReference.getFeature()
-                    point2 = feature2.getDefaultGeometry()
-                    if buffer1.contains(point2):
-                        contains = True
-                        break
-                if not contains:
-                    report.addLine(self,
-                                self.getDataSet1(),
-                                self.getDataSet2(),
-                                point1,
-                                point1,
-                                feature1.getReference(), 
-                                None,
-                                False,
-                                "The point is not coincident."
-                    )
+                if point1.getGeometryType().getName() == "Point2D":
+                    buffer1 = point1.buffer(tolerance1)
+                    contains = False
+                    for featureReference in theDataSet2.query(buffer1):
+                        feature2 = featureReference.getFeature()
+                        point2 = feature2.getDefaultGeometry()
+                        if buffer1.contains(point2):
+                            contains = True
+                            break
+                    if not contains:
+                        report.addLine(self,
+                                    self.getDataSet1(),
+                                    self.getDataSet2(),
+                                    point1,
+                                    point1,
+                                    feature1.getReference(), 
+                                    None,
+                                    False,
+                                    "The point is not coincident."
+                        )
+                else:
+                    if point1.getGeometryType().getName() == "MultiPoint2D":
+                        n1 = point1.getPrimitivesNumber()
+                        for i in range(0, n1 + 1):
+                            buffer1 = point1.getPointAt(i).buffer(tolerance1)
+                            contains = False
+                            for featureReference in theDataSet2.query(buffer1):
+                                feature2 = featureReference.getFeature()
+                                point2 = feature2.getDefaultGeometry()
+                                if buffer1.contains(point2):
+                                    contains = True
+                                    break
+                            if not contains:
+                                report.addLine(self,
+                                            self.getDataSet1(),
+                                            self.getDataSet2(),
+                                            point1.getPointAt(i),
+                                            point1.getPointAt(i),
+                                            feature1.getReference(), 
+                                            None,
+                                            False,
+                                            "The point is not coincident."
+                                )
             else:
                 self.expression.setPhrase(
                     self.expressionBuilder.ifnull(
