@@ -75,7 +75,7 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
                                             feature1.getReference(), 
                                             None,
                                             False,
-                                            "The point is not coincident."
+                                            "The multipoint is not coincident."
                                 )
             else:
                 self.expression.setPhrase(
