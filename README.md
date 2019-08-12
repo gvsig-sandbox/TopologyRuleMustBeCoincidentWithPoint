@@ -1,4 +1,3 @@
 # TopologyRuleMustBeCoincidentWithPoint
 This rule is useful when the points must be aligned. 
-Points in one layer must be coincident with points in another layer, 
-so a report of point errors are created where points from the first layer are not covered by points from the second layer.
+Points in one layer must be coincident with points in another layer,  if are not coincident a report of points error is created, this report is composed by the points from the first layer that are not covered by points from the second layer.
