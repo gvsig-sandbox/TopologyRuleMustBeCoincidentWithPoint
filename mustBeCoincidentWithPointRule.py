@@ -24,8 +24,8 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
         self.addAction(DeletePointAction())
     
     def intersects(self, buffer1, theDataSet2):
+        result = False
         if theDataSet2.getSpatialIndex() != None:
-            result = False
             for featureReference in theDataSet2.query(buffer1):
                 feature2 = featureReference.getFeature()
                 point2 = feature2.getDefaultGeometry()
@@ -49,9 +49,7 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
                     )
                 ).toString()
             )
-            if theDataSet2.findFirst(self.expression) == None:
-                result = False
-            else:
+            if theDataSet2.findFirst(self.expression) != None:
                 result = True
         return result
     

@@ -13,10 +13,11 @@ class DeletePointAction(AbstractTopologyRuleAction):
             "MustBeCoincidentWithPoint",
             "DeletePointAction",
             "Delete Point Action",
-            ""
+            "This action deletes the point errors, these are the no coincident points. Delete the entities that do not comply with the rule, always taking account the established tolerance."
         )
     
     def execute(self, rule, line, parameters):
+		#TopologyRule rule, TopologyReportLine line, DynObject parameters) {
         try:
             dataSet = rule.getDataSet1()
             dataSet.delete(line.getFeature1())
