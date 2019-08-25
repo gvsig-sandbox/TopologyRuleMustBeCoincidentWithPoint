@@ -3,6 +3,7 @@
 import gvsig
 import sys
 
+from gvsig import geom
 from gvsig import uselib
 uselib.use_plugin("org.gvsig.topology.app.mainplugin")
 
@@ -22,59 +23,92 @@ class MustBeCoincidentWithPointRule(AbstractTopologyRule):
         AbstractTopologyRule.__init__(self, plan, factory, tolerance, dataSet1, dataSet2)
         self.addAction(DeletePointAction())
     
-    def check(self, taskStatus, report, feature1):
-        try:
-            store2 = self.getDataSet2().getFeatureStore()
+    def intersects(self, buffer1, theDataSet2):
+        result = False
+        if theDataSet2.getSpatialIndex() != None:
+            for featureReference in theDataSet2.query(buffer1):
+                feature2 = featureReference.getFeature()
+                point2 = feature2.getDefaultGeometry()
+                if buffer1.intersects(point2):
+                    result = True
+                    break
+        else:
             if self.expression == None:
                 manager = ExpressionEvaluatorLocator.getManager()
                 self.expression = manager.createExpression()
                 self.expressionBuilder = manager.createExpressionBuilder()
+                store2 = theDataSet2.getFeatureStore()
                 self.geomName = store2.getDefaultFeatureType().getDefaultGeometryAttributeName()
+            self.expression.setPhrase(
+                self.expressionBuilder.ifnull(
+                    self.expressionBuilder.column(self.geomName),
+                    self.expressionBuilder.constant(False),
+                    self.expressionBuilder.ST_Intersects(
+                        self.expressionBuilder.geometry(buffer1),
+                        self.expressionBuilder.column(self.geomName)
+                    )
+                ).toString()
+            )
+            if theDataSet2.findFirst(self.expression) != None:
+                result = True
+        return result
+    
+    def check(self, taskStatus, report, feature1):
+        try:
             point1 = feature1.getDefaultGeometry()
             tolerance1 = self.getTolerance()
-            buffer1 = point1.buffer(tolerance1)
             theDataSet2 = self.getDataSet2()
-            if theDataSet2.getSpatialIndex() != None:
-                contains = False
-                for featureReference in theDataSet2.query(buffer1):
-                    feature2 = featureReference.getFeature()
-                    point2 = feature2.getDefaultGeometry()
-                    if buffer1.contains(point2):
-                        contains = True
-                        break
-                if not contains:
-                    report.addLine(self,
-                                self.getDataSet1(),
-                                self.getDataSet2(),
-                                point1,
-                                point1,
-                                feature1.getReference(), 
-                                None,
-                                False,
-                                "The point is not coincident."
-                    )
-            else:
-                self.expression.setPhrase(
-                    self.expressionBuilder.ifnull(
-                        self.expressionBuilder.column(self.geomName),
-                        self.expressionBuilder.constant(False),
-                        self.expressionBuilder.ST_Contains(
-                            self.expressionBuilder.geometry(buffer1),
-                            self.expressionBuilder.column(self.geomName)
+            geometryType1 = point1.getGeometryType()
+            if geometryType1.getSubType() == geom.D2 or geometryType1.getSubType() == geom.D2M:
+                if geometryType1.getType() == geom.POINT or geometryType1.isTypeOf(geom.POINT):
+                    buffer1 = point1.buffer(tolerance1)
+                    if not self.intersects(buffer1, theDataSet2):
+                        report.addLine(self,
+                            self.getDataSet1(),
+                            self.getDataSet2(),
+                            point1,
+                            point1,
+                            feature1.getReference(),
+                            None,
+                            -1,
+                            -1,
+                            False,
+                            "Geometry Type: Point. Not coincident.",
+                            ""
                         )
-                    ).toString()
+                else:
+                    if geometryType1.getType() == geom.MULTIPOINT or geometryType1.isTypeOf(geom.MULTIPOINT):
+                        n1 = point1.getPrimitivesNumber()
+                        for i in range(0, n1 + 1):
+                            buffer1 = point1.getPointAt(i).buffer(tolerance1)
+                            if not self.intersects(buffer1, theDataSet2):
+                                report.addLine(self,
+                                    self.getDataSet1(),
+                                    self.getDataSet2(),
+                                    point1,
+                                    point1.getPointAt(i),
+                                    feature1.getReference(), 
+                                    None,
+                                    i,
+                                    -1,
+                                    False,
+                                    "Geometry Type multiPoint:Not coincident.",
+                                    ""
+                                )
+            else:
+                report.addLine(self,
+                    self.getDataSet1(),
+                    self.getDataSet2(),
+                    point1,
+                    point1,
+                    feature1.getReference(),
+                    None,
+                    -1,
+                    -1,
+                    False,
+                    "Unsupported geometry subtype.",
+                    ""
                 )
-                if theDataSet2.findFirst(self.expression) == None:
-                    report.addLine(self,
-                        self.getDataSet1(),
-                        self.getDataSet2(),
-                        point1,
-                        point1,
-                        feature1.getReference(),
-                        None,
-                        False,
-                        "The point is not coincident."
-                    )
         except:
             ex = sys.exc_info()[1]
             gvsig.logger("Can't execute rule. Class Name: " + ex.__class__.__name__ + ". Exception: " + str(ex), gvsig.LOGGER_ERROR)
